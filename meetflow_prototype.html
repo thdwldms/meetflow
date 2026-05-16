@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeetFlow AI — AI 기반 PM 에이전트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple: #534AB7;
+    --purple-light: #EEEDFE;
+    --purple-mid: #AFA9EC;
+    --purple-dark: #3C3489;
+    --teal: #1D9E75;
+    --teal-light: #E1F5EE;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --red-light: #FCEBEB;
+    --red: #A32D2D;
+    --blue-light: #E6F1FB;
+    --blue: #185FA5;
+    --green-light: #EAF3DE;
+    --green: #3B6D11;
+    --bg: #F8F7FF;
+    --surface: #FFFFFF;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.14);
+    --text: #1a1a2e;
+    --text-muted: #6b6b8a;
+    --text-hint: #9999bb;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── PAGE SYSTEM ── */
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: block; }
+
+  /* ── NAV ── */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 40px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 17px; font-weight: 700; color: var(--text);
+    cursor: pointer;
+  }
+  .logo-icon {
+    width: 34px; height: 34px; background: var(--purple);
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .nav-links { display: flex; gap: 28px; font-size: 14px; color: var(--text-muted); }
+  .nav-links span { cursor: pointer; transition: color .2s; }
+  .nav-links span:hover { color: var(--purple); }
+  .nav-btn {
+    padding: 9px 20px; background: var(--purple); color: #fff;
+    border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: opacity .2s;
+  }
+  .nav-btn:hover { opacity: .85; }
+
+  /* ── LANDING ── */
+  .hero {
+    text-align: center;
+    padding: 80px 40px 60px;
+    background: var(--surface);
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--purple-light); color: var(--purple-dark);
+    font-size: 13px; font-weight: 600;
+    padding: 6px 16px; border-radius: 20px; margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: 44px; font-weight: 700; line-height: 1.25;
+    margin-bottom: 18px; letter-spacing: -1px;
+  }
+  .hero h1 span { color: var(--purple); }
+  .hero p {
+    font-size: 17px; color: var(--text-muted); line-height: 1.75;
+    max-width: 540px; margin: 0 auto 36px;
+  }
+  .hero-btns { display: flex; gap: 12px; justify-content: center; }
+  .btn-primary {
+    padding: 14px 28px; background: var(--purple); color: #fff;
+    border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all .2s;
+  }
+  .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+  .btn-outline {
+    padding: 14px 28px; background: transparent;
+    border: 1.5px solid var(--border-strong); border-radius: 12px;
+    font-size: 15px; font-weight: 500; color: var(--text);
+    cursor: pointer; transition: all .2s;
+  }
+  .btn-outline:hover { border-color: var(--purple); color: var(--purple); }
+
+  .features-section {
+    padding: 60px 40px;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .section-title {
+    text-align: center; font-size: 28px; font-weight: 700;
+    margin-bottom: 8px; letter-spacing: -.5px;
+  }
+  .section-sub {
+    text-align: center; font-size: 15px; color: var(--text-muted);
+    margin-bottom: 40px;
+  }
+  .feat-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  }
+  .feat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px;
+    transition: border-color .2s, transform .2s;
+    cursor: pointer;
+  }
+  .feat-card:hover { border-color: var(--purple-mid); transform: translateY(-3px); }
+  .feat-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 14px;
+  }
+  .feat-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .feat-card p { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+
+  .how-section {
+    background: var(--surface); padding: 60px 40px;
+  }
+  .steps {
+    display: flex; gap: 0; max-width: 900px; margin: 0 auto;
+    position: relative;
+  }
+  .steps::before {
+    content: ''; position: absolute;
+    top: 28px; left: 60px; right: 60px; height: 2px;
+    background: var(--border); z-index: 0;
+  }
+  .step {
+    flex: 1; text-align: center; position: relative; z-index: 1;
+  }
+  .step-num {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--purple); color: #fff;
+    font-size: 18px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+    border: 3px solid var(--bg);
+  }
+  .step h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .step p { font-size: 12px; color: var(--text-muted); line-height: 1.6; padding: 0 8px; }
+
+  .cta-section {
+    text-align: center; padding: 70px 40px;
+    background: var(--purple);
+  }
+  .cta-section h2 { font-size: 30px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+  .cta-section p { font-size: 16px; color: rgba(255,255,255,.75); margin-bottom: 28px; }
+  .btn-white {
+    padding: 14px 32px; background: #fff; color: var(--purple);
+    border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: all .2s;
+  }
+  .btn-white:hover { transform: translateY(-2px); }
+
+  /* ── DASHBOARD ── */
+  .dash-layout { display: flex; height: calc(100vh - 65px); overflow: hidden; }
+
+  .sidebar {
+    width: 220px; flex-shrink: 0;
+    background: var(--surface); border-right: 1px solid var(--border);
+    padding: 20px 12px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 24px;
+  }
+  .sb-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: .08em;
+    color: var(--text-hint); text-transform: uppercase;
+    padding: 0 8px; margin-bottom: 6px;
+  }
+  .sb-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: 10px;
+    font-size: 13px; color: var(--text-muted);
+    cursor: pointer; transition: all .15s;
+    margin-bottom: 2px;
+  }
+  .sb-item:hover { background: var(--bg); color: var(--text); }
+  .sb-item.active { background: var(--purple-light); color: var(--purple-dark); font-weight: 600; }
+  .sb-item .icon { font-size: 17px; width: 20px; text-align: center; }
+
+  .ws-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px; border-radius: 10px; font-size: 12px;
+    color: var(--text-muted); cursor: pointer;
+    border: 1px solid var(--border); background: var(--bg);
+    margin-bottom: 6px; transition: all .15s;
+  }
+  .ws-btn:hover { border-color: var(--purple-mid); color: var(--purple-dark); }
+  .ws-icon { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+
+  .dash-main { flex: 1; overflow-y: auto; padding: 24px; background: var(--bg); }
+
+  .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .dash-header h2 { font-size: 20px; font-weight: 700; }
+  .dash-header-meta { font-size: 13px; color: var(--text-muted); }
+
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .metric-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px 18px;
+  }
+  .metric-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .metric-val { font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+  .metric-sub { font-size: 11px; color: var(--text-hint); }
+
+  .warn-banner {
+    background: var(--amber-light); border: 1px solid #EF9F27;
+    border-radius: 12px; padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: #633806; margin-bottom: 20px;
+  }
+  .warn-banner .warn-icon { font-size: 18px; flex-shrink: 0; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 18px;
+  }
+  .panel-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .panel-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .panel-link { font-size: 12px; color: var(--purple); cursor: pointer; }
+
+  .task-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .task-row:last-child { border-bottom: none; }
+  .chk {
+    width: 18px; height: 18px; border-radius: 5px;
+    border: 1.5px solid var(--border-strong); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .chk.done { background: var(--teal); border-color: var(--teal); color: #fff; font-size: 11px; }
+  .task-name { flex: 1; font-size: 13px; }
+  .task-name.done { color: var(--text-hint); text-decoration: line-through; }
+  .task-owner { font-size: 11px; color: var(--text-hint); }
+
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 3px 9px; border-radius: 20px;
+  }
+  .b-done { background: var(--green-light); color: var(--green); }
+  .b-doing { background: var(--blue-light); color: var(--blue); }
+  .b-delay { background: var(--red-light); color: var(--red); }
+  .b-todo { background: var(--amber-light); color: var(--amber); }
+  .b-purple { background: var(--purple-light); color: var(--purple-dark); }
+
+  .brief-item { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .brief-item:last-child { border-bottom: none; }
+  .brief-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .brief-name { font-size: 13px; font-weight: 600; }
+  .brief-sub { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+  /* Task Flow */
+  .flow-wrap { overflow-x: auto; }
+  .flow-stage { display: flex; gap: 10px; min-width: 600px; }
+  .flow-col { flex: 1; }
+  .flow-col-label {
+    font-size: 11px; font-weight: 700; letter-spacing: .06em;
+    color: var(--text-hint); text-transform: uppercase;
+    text-align: center; margin-bottom: 8px;
+  }
+  .flow-node {
+    background: var(--bg); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 10px 12px; text-align: center;
+    margin-bottom: 6px;
+  }
+  .flow-node.done { background: var(--teal-light); border-color: #5DCAA5; }
+  .flow-node.active { background: var(--purple-light); border-color: var(--purple-mid); }
+  .flow-node.warn { background: var(--amber-light); border-color: #EF9F27; }
+  .fn-title { font-size: 12px; font-weight: 600; color: var(--text); }
+  .flow-node.done .fn-title { color: #085041; }
+  .flow-node.active .fn-title { color: var(--purple-dark); }
+  .flow-node.warn .fn-title { color: #633806; }
+  .fn-owner { font-size: 11px; color: var(--text-hint); margin-top: 3px; }
+
+  /* Upload page */
+  .upload-area {
+    border: 2px dashed var(--border-strong); border-radius: 16px;
+    padding: 48px; text-align: center; cursor: pointer;
+    transition: all .2s; background: var(--bg);
+    margin-bottom: 20px;
+  }
+  .upload-area:hover { border-color: var(--purple); background: var(--purple-light); }
+  .upload-icon { font-size: 40px; margin-bottom: 12px; }
+  .upload-area h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .upload-area p { font-size: 13px; color: var(--text-muted); }
+
+  .or-divider { text-align: center; font-size: 13px; color: var(--text-hint); margin: 16px 0; }
+
+  textarea {
+    width: 100%; padding: 14px; border: 1px solid var(--border);
+    border-radius: 12px; font-size: 14px; font-family: inherit;
+    resize: vertical; min-height: 120px; background: var(--surface);
+    color: var(--text); outline: none; transition: border-color .2s;
+  }
+  textarea:focus { border-color: var(--purple); }
+
+  .ai-processing {
+    background: var(--purple-light); border: 1px solid var(--purple-mid);
+    border-radius: 12px; padding: 16px; display: none;
+    align-items: center; gap: 12px; margin-top: 16px;
+  }
+  .ai-processing.show { display: flex; }
+  .spinner {
+    width: 20px; height: 20px; border: 2.5px solid var(--purple-mid);
+    border-top-color: var(--purple); border-radius: 50%;
+    animation: spin 1s linear infinite; flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Meeting result */
+  .result-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; margin-bottom: 14px;
+  }
+  .result-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .result-tag { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+
+  /* Tabs */
+  .tab-bar { display: flex; gap: 4px; padding: 0 24px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .tab {
+    padding: 13px 16px; font-size: 13px; font-weight: 500;
+    color: var(--text-muted); cursor: pointer;
+    border-bottom: 2px solid transparent; transition: all .15s;
+  }
+  .tab.active { color: var(--purple); border-bottom-color: var(--purple); }
+  .tab:hover { color: var(--text); }
+
+  /* Avatar */
+  .av {
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .av-p { background: var(--purple-light); color: var(--purple-dark); }
+  .av-t { background: var(--teal-light); color: #085041; }
+  .av-a { background: var(--amber-light); color: #633806; }
+
+  /* Page transition */
+  .page { animation: fadeIn .2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  footer {
+    background: var(--text); color: rgba(255,255,255,.5);
+    text-align: center; padding: 24px; font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LANDING PAGE ══════════════ -->
+<div id="page-landing" class="page active">
+  <nav>
+    <div class="nav-logo" onclick="goto('landing')">
+      <div class="logo-icon">🤖</div>
+      MeetFlow AI
+    </div>
+    <div class="nav-links">
+      <span onclick="scrollTo(0,600)">기능 소개</span>
+      <span onclick="scrollTo(0,1100)">사용 방법</span>
+      <span>팀 소개</span>
+    </div>
+    <button class="nav-btn" onclick="goto('dashboard')">대시보드 보기 →</button>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-badge">✨ AI 기반 협업 PM 에이전트</div>
+    <h1>회의가 끝나도<br><span>업무는 자동으로</span> 굴러갑니다</h1>
+    <p>회의 내용을 AI가 분석해 담당자 배분·일정 등록·진행 현황 관리까지 자동 처리합니다. 전담 PM 없이도 체계적인 프로젝트 운영이 가능합니다.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="goto('upload')">회의 업로드하기 →</button>
+      <button class="btn-outline" onclick="goto('dashboard')">대시보드 미리보기</button>
+    </div>
+  </div>
+
+  <div class="features-section">
+    <div class="section-title">핵심 기능 6가지</div>
+    <div class="section-sub">회의 시작부터 실행 관리까지, 모든 과정을 AI가 자동화합니다</div>
+    <div class="feat-grid">
+      <div class="feat-card" onclick="goto('upload')">
+        <div class="feat-icon" style="background:#EEEDFE;">🎙️</div>
+        <h3>01 · 회의 내용 AI 정리</h3>
+        <p>음성·텍스트를 STT로 변환 후 Gemini API가 안건·담당자·Action Item을 JSON으로 자동 추출합니다.</p>
+      </div>
+      <div class="feat-card" onclick="goto('dashboard')">
+        <div class="feat-icon" style="background:#E1F5EE;">📅</div>
+        <h3>02 · 업무 및 일정 자동 생성</h3>
+        <p>CPM/PERT 기반으로 우선순위를 산정하고 Google Calendar에 담당자별 일정을 자동 등록합니다.</p>
+      </div>
+      <div class="feat-card" onclick="goto('dashboard')">
+        <div class="feat-icon" style="background:#FAEEDA;">⚠️</div>
+        <h3>03 · 반복 미완료 업무 탐지</h3>
+        <p>동일 업무가 반복 지연될 경우 Bottleneck Analysis로 패턴을 탐지해 경고를 자동 표시합니다.</p>
+      </div>
+      <div class="feat-card" onclick="goto('taskflow')">
+        <div class="feat-icon" style="background:#E6F1FB;">🔗</div>
+        <h3>04 · Task Flow 시각화</h3>
+        <p>업무 간 선후 관계를 그래프로 시각화하여 프로젝트 전체 흐름을 한눈에 파악할 수 있습니다.</p>
+      </div>
+      <div class="feat-card" onclick="goto('briefing')">
+        <div class="feat-icon" style="background:#FBEAF0;">📋</div>
+        <h3>05 · 다음 회의 브리핑</h3>
+        <p>이전 회의 데이터를 기반으로 미완료 업무와 AI 레퍼런스 피드백을 자동 정리해 제공합니다.</p>
+      </div>
+      <div class="feat-card" onclick="goto('dashboard')">
+        <div class="feat-icon" style="background:#EAF3DE;">🔗</div>
+        <h3>06 · Google Workspace 연동</h3>
+        <p>Meet·Docs·Calendar·Gemini를 하나의 플랫폼에서 바로 사용할 수 있어 도구 전환 비용이 없습니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="how-section">
+    <div class="section-title">사용 방법</div>
+    <div class="section-sub" style="margin-bottom:48px;">4단계로 프로젝트 관리가 완성됩니다</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>회의 업로드</h4>
+        <p>음성 파일 또는 텍스트를 플랫폼에 업로드합니다</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>AI 자동 정리</h4>
+        <p>Gemini API가 안건·담당자·Action Item을 자동 추출합니다</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>일정 자동 등록</h4>
+        <p>Google Calendar에 마감 일정이 자동 등록됩니다</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h4>현황 관리</h4>
+        <p>대시보드에서 전체 진행 상황을 실시간으로 확인합니다</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <h2>지금 바로 시작해보세요</h2>
+    <p>회의 후 반복되는 정리 업무에서 해방되세요</p>
+    <button class="btn-white" onclick="goto('upload')">무료로 시작하기 →</button>
+  </div>
+
+  <footer>© 2025 MeetFlow AI · 와공이들 팀 · AI 기반 PM 에이전트 프로젝트</footer>
+</div>
+
+
+<!-- ══════════════ UPLOAD PAGE ══════════════ -->
+<div id="page-upload" class="page">
+  <nav>
+    <div class="nav-logo" onclick="goto('landing')">
+      <div class="logo-icon">🤖</div>
+      MeetFlow AI
+    </div>
+    <div class="nav-links">
+      <span onclick="goto('dashboard')">대시보드</span>
+      <span onclick="goto('taskflow')">Task Flow</span>
+      <span onclick="goto('briefing')">브리핑</span>
+    </div>
+    <button class="nav-btn" onclick="goto('dashboard')">대시보드 →</button>
+  </nav>
+
+  <div style="max-width:700px;margin:0 auto;padding:40px 24px;">
+    <div style="margin-bottom:28px;">
+      <h2 style="font-size:24px;font-weight:700;margin-bottom:8px;">회의 내용 업로드</h2>
+      <p style="font-size:14px;color:var(--text-muted);">음성 파일 또는 텍스트를 입력하면 AI가 자동으로 정리합니다</p>
+    </div>
+
+    <div class="upload-area" onclick="simulateUpload()">
+      <div class="upload-icon">🎙️</div>
+      <h3>음성 파일을 여기에 드래그하거나 클릭하세요</h3>
+      <p>MP3, WAV, M4A 지원 · 최대 200MB</p>
+    </div>
+
+    <div class="or-divider">── 또는 텍스트로 직접 입력 ──</div>
+
+    <textarea id="meeting-text" placeholder="회의 내용을 붙여넣기 하세요...&#10;&#10;예시:&#10;수민: 이번 3분기 마케팅 예산은 500만원으로 확정했어요. 지은씨가 콘텐츠 기획안을 7월 21일까지 작성해주시고, 주향씨는 예산안을 7월 25일까지 제출해주세요. 세은씨는 개발 일정 정리 부탁드려요."></textarea>
+
+    <button class="btn-primary" style="width:100%;margin-top:14px;padding:14px;" onclick="simulateAI()">
+      🤖 AI 분석 시작
+    </button>
+
+    <div class="ai-processing" id="ai-processing">
+      <div class="spinner"></div>
+      <div>
+        <div style="font-size:14px;font-weight:600;color:var(--purple-dark);">Gemini AI가 회의를 분석하고 있습니다...</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">STT 변환 → 안건 추출 → Action Item 정리 → 담당자 매핑</div>
+      </div>
+    </div>
+
+    <div id="ai-result" style="display:none;margin-top:20px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+        <span style="font-size:18px;">✅</span>
+        <h3 style="font-size:16px;font-weight:700;">AI 분석 완료</h3>
+        <span class="badge b-done">3분기 마케팅 회의</span>
+      </div>
+
+      <div class="result-card">
+        <h3>📝 핵심 안건 요약</h3>
+        <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">3분기 SNS 마케팅 예산(500만원) 확정 및 콘텐츠 방향성 논의. 인스타그램 릴스 중심 숏폼 전략으로 전환 결정. 담당자별 업무 배분 완료.</p>
+      </div>
+
+      <div class="result-card">
+        <h3>✅ Action Items</h3>
+        <div class="task-row">
+          <div class="chk"></div>
+          <div class="task-name" style="flex:1;">콘텐츠 기획안 작성</div>
+          <span style="font-size:12px;color:var(--text-muted);margin-right:8px;">지은 · 7/21</span>
+          <span class="badge b-todo">미시작</span>
+        </div>
+        <div class="task-row">
+          <div class="chk"></div>
+          <div class="task-name" style="flex:1;">예산안 제출</div>
+          <span style="font-size:12px;color:var(--text-muted);margin-right:8px;">주향 · 7/25</span>
+          <span class="badge b-todo">미시작</span>
+        </div>
+        <div class="task-row">
+          <div class="chk"></div>
+          <div class="task-name" style="flex:1;">개발 일정 정리</div>
+          <span style="font-size:12px;color:var(--text-muted);margin-right:8px;">세은 · 7/28</span>
+          <span class="badge b-todo">미시작</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="result-card">
+          <h3>👥 담당자</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+            <div style="display:flex;align-items:center;gap:6px;background:var(--bg);padding:5px 10px;border-radius:20px;font-size:13px;">
+              <div class="av av-p">수민</div> 수민
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;background:var(--bg);padding:5px 10px;border-radius:20px;font-size:13px;">
+              <div class="av av-t">지은</div> 지은
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;background:var(--bg);padding:5px 10px;border-radius:20px;font-size:13px;">
+              <div class="av av-a">주향</div> 주향
+            </div>
+          </div>
+        </div>
+        <div class="result-card">
+          <h3>📅 마감 일정</h3>
+          <div style="margin-top:8px;font-size:13px;color:var(--text-muted);line-height:2;">
+            <div>콘텐츠 기획안 → <b style="color:var(--text);">7월 21일</b></div>
+            <div>예산안 제출 → <b style="color:var(--text);">7월 25일</b></div>
+            <div>개발 일정 → <b style="color:var(--text);">7월 28일</b></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" style="width:100%;margin-top:16px;padding:14px;" onclick="goto('dashboard')">
+        대시보드에서 확인하기 →
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ DASHBOARD PAGE ══════════════ -->
+<div id="page-dashboard" class="page">
+  <nav>
+    <div class="nav-logo" onclick="goto('landing')">
+      <div class="logo-icon">🤖</div>
+      MeetFlow AI
+    </div>
+    <div class="tab-bar" style="flex:1;border-bottom:none;">
+      <div class="tab active">대시보드</div>
+      <div class="tab" onclick="goto('upload')">회의 업로드</div>
+      <div class="tab" onclick="goto('taskflow')">Task Flow</div>
+      <div class="tab" onclick="goto('briefing')">브리핑</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding-right:8px;">
+      <span style="font-size:18px;">🔔</span>
+      <div class="av av-p" style="width:32px;height:32px;font-size:12px;">수민</div>
+    </div>
+  </nav>
+
+  <div class="dash-layout">
+    <div class="sidebar">
+      <div>
+        <div class="sb-section-label">프로젝트</div>
+        <div class="sb-item active"><span class="icon">📁</span> 와공이들 팀</div>
+        <div class="sb-item"><span class="icon">➕</span> 새 프로젝트</div>
+      </div>
+      <div>
+        <div class="sb-section-label">메뉴</div>
+        <div class="sb-item active"><span class="icon">📊</span> 대시보드</div>
+        <div class="sb-item" onclick="goto('upload')"><span class="icon">🎙️</span> 회의 업로드</div>
+        <div class="sb-item"><span class="icon">✅</span> Action Items</div>
+        <div class="sb-item" onclick="goto('taskflow')"><span class="icon">🔗</span> Task Flow</div>
+        <div class="sb-item" onclick="goto('briefing')"><span class="icon">📋</span> 브리핑</div>
+        <div class="sb-item"><span class="icon">📅</span> 일정 관리</div>
+      </div>
+      <div>
+        <div class="sb-section-label">Google Workspace</div>
+        <div class="ws-btn"><div class="ws-icon" style="background:#E6F1FB;">📹</div> Google Meet</div>
+        <div class="ws-btn"><div class="ws-icon" style="background:#EAF3DE;">📄</div> Google Docs</div>
+        <div class="ws-btn"><div class="ws-icon" style="background:#FAEEDA;">📅</div> Calendar</div>
+        <div class="ws-btn"><div class="ws-icon" style="background:#EEEDFE;">✨</div> Gemini</div>
+      </div>
+    </div>
+
+    <div class="dash-main">
+      <div class="dash-header">
+        <div>
+          <h2>3분기 마케팅 전략 프로젝트</h2>
+          <div class="dash-header-meta">최근 회의: 2025년 7월 14일 · 참석자 5명</div>
+        </div>
+        <button class="btn-primary" onclick="goto('upload')" style="padding:9px 18px;font-size:13px;">+ 회의 업로드</button>
+      </div>
+
+      <div class="metrics">
+        <div class="metric-card">
+          <div class="metric-label">전체 업무</div>
+          <div class="metric-val">18</div>
+          <div class="metric-sub">이번 스프린트</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">완료</div>
+          <div class="metric-val" style="color:var(--teal);">7</div>
+          <div class="metric-sub">완료율 39%</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">지연 경고</div>
+          <div class="metric-val" style="color:var(--amber);">2</div>
+          <div class="metric-sub">반복 미완료</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">다음 마감</div>
+          <div class="metric-val" style="font-size:20px;padding-top:4px;">D-3</div>
+          <div class="metric-sub">콘텐츠 기획안</div>
+        </div>
+      </div>
+
+      <div class="warn-banner">
+        <div class="warn-icon">⚠️</div>
+        <div><b>반복 미완료 탐지</b> — "예산안 작성" 업무가 3회 연속 미완료 상태입니다. 담당자 주향님 확인이 필요합니다.</div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-hd">
+            <div class="panel-title">✅ Action Items</div>
+            <div class="panel-link">전체 보기</div>
+          </div>
+          <div class="task-row">
+            <div class="chk done">✓</div>
+            <div class="task-name done">기능 명세서 작성</div>
+            <span class="task-owner">수민</span>
+            <span class="badge b-done" style="margin-left:8px;">완료</span>
+          </div>
+          <div class="task-row">
+            <div class="chk done">✓</div>
+            <div class="task-name done">와이어프레임 초안</div>
+            <span class="task-owner">지은</span>
+            <span class="badge b-done" style="margin-left:8px;">완료</span>
+          </div>
+          <div class="task-row">
+            <div class="chk"></div>
+            <div class="task-name">UI 상세 설계</div>
+            <span class="task-owner">지은</span>
+            <span class="badge b-doing" style="margin-left:8px;">진행 중</span>
+          </div>
+          <div class="task-row">
+            <div class="chk"></div>
+            <div class="task-name">예산안 작성 ⚠️</div>
+            <span class="task-owner">주향</span>
+            <span class="badge b-delay" style="margin-left:8px;">지연</span>
+          </div>
+          <div class="task-row">
+            <div class="chk"></div>
+            <div class="task-name">Gemini API 프롬프트</div>
+            <span class="task-owner">세은</span>
+            <span class="badge b-todo" style="margin-left:8px;">미시작</span>
+          </div>
+          <div class="task-row">
+            <div class="chk"></div>
+            <div class="task-name">발표 자료 초안</div>
+            <span class="task-owner">지연</span>
+            <span class="badge b-todo" style="margin-left:8px;">미시작</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hd">
+            <div class="panel-title">📋 다음 회의 브리핑</div>
+            <div class="panel-link" onclick="goto('briefing')">전체 보기 →</div>
+          </div>
+          <div class="brief-item">
+            <div class="brief-top">
+              <div class="brief-name">미완료 업무 4건</div>
+              <span class="badge b-delay">확인 필요</span>
+            </div>
+            <div class="brief-sub">예산안(3회 지연), UI 설계 40% 진행, Gemini 프롬프트 미시작</div>
+          </div>
+          <div class="brief-item">
+            <div class="brief-top">
+              <div class="brief-name">이번 주 마감</div>
+              <span class="badge b-todo">D-3</span>
+            </div>
+            <div class="brief-sub">콘텐츠 기획안 — 지은 담당 (7월 21일)</div>
+          </div>
+          <div class="brief-item">
+            <div class="brief-top">
+              <div class="brief-name">AI 피드백</div>
+              <span class="badge b-purple">레퍼런스</span>
+            </div>
+            <div class="brief-sub">유사 서비스: Notion AI, Linear 자동 업무 배분 방식 참고 권장</div>
+          </div>
+          <button class="btn-outline" style="width:100%;margin-top:12px;padding:9px;font-size:13px;" onclick="goto('briefing')">
+            브리핑 전체 보기 →
+          </button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <div class="panel-title">🔗 Task Flow 요약</div>
+          <div class="panel-link" onclick="goto('taskflow')">전체 보기 →</div>
+        </div>
+        <div class="flow-wrap">
+          <div class="flow-stage">
+            <div class="flow-col">
+              <div class="flow-col-label">기획</div>
+              <div class="flow-node done"><div class="fn-title">기획 확정</div><div class="fn-owner">팀 전체 ✓</div></div>
+              <div class="flow-node done"><div class="fn-title">기능 명세서</div><div class="fn-owner">수민 ✓</div></div>
+            </div>
+            <div class="flow-col">
+              <div class="flow-col-label">설계</div>
+              <div class="flow-node active"><div class="fn-title">UI 설계</div><div class="fn-owner">지은 · 진행중</div></div>
+              <div class="flow-node warn"><div class="fn-title">예산안</div><div class="fn-owner">주향 ⚠ 지연</div></div>
+            </div>
+            <div class="flow-col">
+              <div class="flow-col-label">개발</div>
+              <div class="flow-node"><div class="fn-title">STT 연동</div><div class="fn-owner">지연</div></div>
+              <div class="flow-node"><div class="fn-title">Gemini API</div><div class="fn-owner">세은</div></div>
+            </div>
+            <div class="flow-col">
+              <div class="flow-col-label">연동</div>
+              <div class="flow-node"><div class="fn-title">Google Cal</div><div class="fn-owner">세은</div></div>
+              <div class="flow-node"><div class="fn-title">Dashboard UI</div><div class="fn-owner">지은</div></div>
+            </div>
+            <div class="flow-col">
+              <div class="flow-col-label">마무리</div>
+              <div class="flow-node"><div class="fn-title">통합 테스트</div><div class="fn-owner">팀 전체</div></div>
+              <div class="flow-node"><div class="fn-title">발표 준비</div><div class="fn-owner">지연</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ TASK FLOW PAGE ══════════════ -->
+<div id="page-taskflow" class="page">
+  <nav>
+    <div class="nav-logo" onclick="goto('landing')">
+      <div class="logo-icon">🤖</div>
+      MeetFlow AI
+    </div>
+    <div class="tab-bar" style="flex:1;border-bottom:none;">
+      <div class="tab" onclick="goto('dashboard')">대시보드</div>
+      <div class="tab" onclick="goto('upload')">회의 업로드</div>
+      <div class="tab active">Task Flow</div>
+      <div class="tab" onclick="goto('briefing')">브리핑</div>
+    </div>
+    <div style="padding-right:16px;font-size:13px;color:var(--text-muted);">와공이들 팀</div>
+  </nav>
+
+  <div style="padding:28px 32px;max-width:1000px;margin:0 auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <div>
+        <h2 style="font-size:22px;font-weight:700;margin-bottom:6px;">Task Flow 시각화</h2>
+        <p style="font-size:14px;color:var(--text-muted);">업무 간 선후 관계와 진행 상태를 한눈에 확인합니다</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <span class="badge b-done" style="padding:5px 12px;">✓ 완료</span>
+        <span class="badge b-doing" style="padding:5px 12px;">⟳ 진행 중</span>
+        <span class="badge b-delay" style="padding:5px 12px;">⚠ 지연</span>
+        <span style="background:var(--bg);border:1px solid var(--border);font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;">대기</span>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:16px;">
+      <div class="panel-hd">
+        <div class="panel-title">📍 Critical Path (CPM 기반 우선순위)</div>
+        <span class="badge b-delay">주의 구간 포함</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0;">
+        <div style="background:var(--teal-light);border:1.5px solid #5DCAA5;border-radius:10px;padding:10px 14px;text-align:center;min-width:100px;">
+          <div style="font-size:12px;font-weight:700;color:#085041;">기획 확정</div>
+          <div style="font-size:11px;color:var(--text-hint);margin-top:2px;">완료 ✓</div>
+        </div>
+        <div style="font-size:18px;color:var(--text-hint);">→</div>
+        <div style="background:var(--teal-light);border:1.5px solid #5DCAA5;border-radius:10px;padding:10px 14px;text-align:center;min-width:100px;">
+          <div style="font-size:12px;font-weight:700;color:#085041;">기능 명세서</div>
+          <div style="font-size:11px;color:var(--text-hint);margin-top:2px;">완료 ✓</div>
+        </div>
+        <div style="font-size:18px;color:var(--text-hint);">→</div>
+        <div style="background:var(--purple-light);border:1.5px solid var(--purple-mid);border-radius:10px;padding:10px 14px;text-align:center;min-width:100px;">
+          <div style="font-size:12px;font-weight:700;color:var(--purple-dark);">UI 설계</div>
+          <div style="font-size:11px;color:var(--text-hint);margin-top:2px;">진행 중 40%</div>
+        </div>
+        <div style="font-size:18px;color:var(--text-hint);">→</div>
+        <div style="background:var(--amber-light);border:1.5px solid #EF9F27;border-radius:10px;padding:10px 14px;text-align:center;min-width:100px;">
+          <div style="font-size:12px;font-weight:700;color:#633806;">예산안 ⚠</div>
+          <div style="font-size:11px;color:var(--text-hint);margin-top:2px;">3회 지연</div>
+        </div>
+        <div style="font-size:18px;color:var(--text-hint);">→</div>
+        <div style="background:var(--bg);border:1.5px solid var(--border-strong);border-radius:10px;padding:10px 14px;text-align:center;min-width:100px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text);">개발 착수</div>
+          <div style="font-size:11px;color:var(--text-hint);margin-top:2px;">대기</div>
+        </div>
+        <div style="font-size:18px;color:var(--text-hint);">→</div>
+        <div style="background:var(--bg);border:1.5px solid var(--border-strong);border-radius:10px;padding:10px 14px;text-align:center;min-width:100px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text);">통합 테스트</div>
+          <div style="font-size:11px;color:var(--text-hint);margin-top:2px;">대기</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-hd">
+          <div class="panel-title">👤 담당자별 업무 현황</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div class="av av-p">수민</div>
+                <span style="font-size:13px;font-weight:600;">수민</span>
+              </div>
+              <span style="font-size:12px;color:var(--teal);">2/3 완료</span>
+            </div>
+            <div style="background:var(--bg);border-radius:6px;height:8px;overflow:hidden;">
+              <div style="background:var(--teal);height:100%;width:66%;border-radius:6px;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div class="av av-t">지은</div>
+                <span style="font-size:13px;font-weight:600;">지은</span>
+              </div>
+              <span style="font-size:12px;color:var(--purple);">1/3 완료</span>
+            </div>
+            <div style="background:var(--bg);border-radius:6px;height:8px;overflow:hidden;">
+              <div style="background:var(--purple);height:100%;width:33%;border-radius:6px;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div class="av av-a">주향</div>
+                <span style="font-size:13px;font-weight:600;">주향 ⚠</span>
+              </div>
+              <span style="font-size:12px;color:var(--red);">0/2 완료</span>
+            </div>
+            <div style="background:var(--bg);border-radius:6px;height:8px;overflow:hidden;">
+              <div style="background:var(--amber);height:100%;width:10%;border-radius:6px;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div class="av av-p" style="background:#E1F5EE;color:#085041;">지연</div>
+                <span style="font-size:13px;font-weight:600;">지연</span>
+              </div>
+              <span style="font-size:12px;color:var(--text-muted);">0/2 완료</span>
+            </div>
+            <div style="background:var(--bg);border-radius:6px;height:8px;overflow:hidden;">
+              <div style="background:var(--text-hint);height:100%;width:5%;border-radius:6px;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div class="av av-a" style="background:#FBEAF0;color:#72243E;">세은</div>
+                <span style="font-size:13px;font-weight:600;">세은</span>
+              </div>
+              <span style="font-size:12px;color:var(--text-muted);">0/3 완료</span>
+            </div>
+            <div style="background:var(--bg);border-radius:6px;height:8px;overflow:hidden;">
+              <div style="background:var(--text-hint);height:100%;width:5%;border-radius:6px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <div class="panel-title">⚠️ 병목 분석 (Bottleneck)</div>
+        </div>
+        <div class="warn-banner" style="margin-bottom:12px;">
+          <div class="warn-icon">🚨</div>
+          <div><b>주향</b>님의 예산안 업무가 Critical Path 상 병목입니다. 이 업무가 해결되지 않으면 개발 착수가 지연됩니다.</div>
+        </div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.8;">
+          <div>• 예산안 작성: <b style="color:var(--red);">3회 연속 미완료</b></div>
+          <div>• 최초 마감: 6월 30일 → 현재: 7월 25일</div>
+          <div>• 후속 영향 업무: 개발 착수, 통합 테스트</div>
+          <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
+            <b>AI 권고:</b> 업무 분담 또는 마감일 재협의를 권장합니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════ BRIEFING PAGE ══════════════ -->
+<div id="page-briefing" class="page">
+  <nav>
+    <div class="nav-logo" onclick="goto('landing')">
+      <div class="logo-icon">🤖</div>
+      MeetFlow AI
+    </div>
+    <div class="tab-bar" style="flex:1;border-bottom:none;">
+      <div class="tab" onclick="goto('dashboard')">대시보드</div>
+      <div class="tab" onclick="goto('upload')">회의 업로드</div>
+      <div class="tab" onclick="goto('taskflow')">Task Flow</div>
+      <div class="tab active">브리핑</div>
+    </div>
+    <div style="padding-right:16px;font-size:13px;color:var(--text-muted);">와공이들 팀</div>
+  </nav>
+
+  <div style="max-width:800px;margin:0 auto;padding:32px 24px;">
+    <div style="margin-bottom:28px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <h2 style="font-size:22px;font-weight:700;">다음 회의 브리핑</h2>
+        <span class="badge b-purple" style="padding:5px 12px;">✨ AI 자동 생성</span>
+      </div>
+      <p style="font-size:14px;color:var(--text-muted);">이전 회의 데이터를 기반으로 자동 정리된 브리핑입니다 · 2025년 7월 21일 회의 예정</p>
+    </div>
+
+    <div class="panel" style="margin-bottom:16px;">
+      <div class="panel-hd">
+        <div class="panel-title">📌 미완료 업무 현황</div>
+        <span class="badge b-delay">4건 확인 필요</span>
+      </div>
+      <div class="task-row">
+        <div class="chk"></div>
+        <div style="flex:1;">
+          <div class="task-name">예산안 작성</div>
+          <div style="font-size:11px;color:var(--red);margin-top:2px;">⚠ 3회 연속 미완료 · 마감: 7/25</div>
+        </div>
+        <span style="font-size:12px;color:var(--text-hint);">주향</span>
+        <span class="badge b-delay" style="margin-left:8px;">지연</span>
+      </div>
+      <div class="task-row">
+        <div class="chk"></div>
+        <div style="flex:1;">
+          <div class="task-name">UI 상세 설계</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">진행률 40% · 마감: 7/21</div>
+        </div>
+        <span style="font-size:12px;color:var(--text-hint);">지은</span>
+        <span class="badge b-doing" style="margin-left:8px;">진행 중</span>
+      </div>
+      <div class="task-row">
+        <div class="chk"></div>
+        <div style="flex:1;">
+          <div class="task-name">Gemini API 프롬프트 설계</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">마감: 7/28</div>
+        </div>
+        <span style="font-size:12px;color:var(--text-hint);">세은</span>
+        <span class="badge b-todo" style="margin-left:8px;">미시작</span>
+      </div>
+      <div class="task-row">
+        <div class="chk"></div>
+        <div style="flex:1;">
+          <div class="task-name">발표 자료 초안</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">마감: 8/10</div>
+        </div>
+        <span style="font-size:12px;color:var(--text-hint);">지연</span>
+        <span class="badge b-todo" style="margin-left:8px;">미시작</span>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:16px;">
+      <div class="panel-hd">
+        <div class="panel-title">🔍 AI 피드백 — 유사 사례 & 레퍼런스</div>
+        <span class="badge b-purple">Gemini 검색 기반</span>
+      </div>
+      <div class="brief-item">
+        <div class="brief-top">
+          <div class="brief-name">✅ 유사 서비스 사례</div>
+        </div>
+        <div class="brief-sub">
+          <b>Notion AI</b>: 회의록 자동 요약 및 Action Item 추출 기능 제공. 사용자 90%가 회의 후 정리 시간 50% 단축 보고.<br>
+          <b>Linear</b>: 이슈 기반 업무 관리 + 자동 우선순위 배정. 스타트업 팀에서 가장 많이 활용.
+        </div>
+      </div>
+      <div class="brief-item">
+        <div class="brief-top">
+          <div class="brief-name">📈 시장 동향 분석</div>
+        </div>
+        <div class="brief-sub">
+          AI 기반 업무 자동화 시장은 2025년 기준 연 32% 성장 중. 특히 PM 부재 소규모 팀을 위한 경량 협업 툴 수요가 급증하고 있음. (출처: Gemini Search Grounding)
+        </div>
+      </div>
+      <div class="brief-item">
+        <div class="brief-top">
+          <div class="brief-name">💡 AI 권고 사항</div>
+        </div>
+        <div class="brief-sub">
+          1. 예산안 지연이 Critical Path에 영향을 미치고 있으므로 담당자 재배정 또는 지원 인력 투입을 검토하세요.<br>
+          2. UI 설계 완료 전 개발 착수를 방지하기 위해 선후 관계 잠금 설정을 권장합니다.<br>
+          3. Google Docs에 이번 회의 안건을 미리 공유해 회의 효율을 높이세요.
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:16px;">
+      <div class="panel-hd">
+        <div class="panel-title">📅 이번 주 일정 요약</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <div style="background:var(--red-light);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:22px;font-weight:700;color:var(--red);">D-3</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">콘텐츠 기획안</div>
+          <div style="font-size:11px;color:var(--text-hint);">지은 · 7/21</div>
+        </div>
+        <div style="background:var(--amber-light);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:22px;font-weight:700;color:var(--amber);">D-7</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">예산안 제출</div>
+          <div style="font-size:11px;color:var(--text-hint);">주향 · 7/25</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;">
+          <div style="font-size:22px;font-weight:700;color:var(--text-muted);">D-10</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">개발 일정 정리</div>
+          <div style="font-size:11px;color:var(--text-hint);">세은 · 7/28</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <button class="btn-outline" style="padding:12px;" onclick="goto('dashboard')">← 대시보드로</button>
+      <button class="btn-primary" style="padding:12px;" onclick="goto('upload')">새 회의 업로드 →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function goto(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function simulateUpload() {
+    simulateAI();
+  }
+
+  function simulateAI() {
+    const proc = document.getElementById('ai-processing');
+    const result = document.getElementById('ai-result');
+    proc.classList.add('show');
+    result.style.display = 'none';
+    setTimeout(() => {
+      proc.classList.remove('show');
+      result.style.display = 'block';
+      result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 2200);
+  }
+</script>
+</body>
+</html>
